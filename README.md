@@ -12,18 +12,18 @@ The repository is organized to separate data, analysis, and application code.
 
 ```text
 lyrics-brand-mentions-ru/
-├── data/                  # Raw and processed datasets, aggregated charts, and text data
-├── notebooks/             # Exploratory data analysis and data cleaning prototypes
+├── data/                  # raw and processed datasets, aggregated charts, and text data
+├── notebooks/             # exploratory data analysis and data cleaning prototypes
 │   ├── data_clean.ipynb
 │   └── parse_*.ipynb
-└── src/                   # Main pipeline and application code
-    ├── app/               # Flask web dashboard for viewing data trends
+└── src/                   # main pipeline and application code
+    ├── app/               # flask web dashboard for viewing data trends
     │   ├── app.py
     │   ├── charts_logic.py
     │   └── static/ & templates/
-    ├── data_pipeline/     # Scripts for data cleaning and adding metadata
+    ├── data_pipeline/     # scripts for data cleaning and adding metadata
     │   └── data_clean.py
-    └── scrapers/          # Scripts to collect chart data
+    └── scrapers/          # scripts to collect chart data
         ├── parse_master.py
         ├── parse_song_of_the_year.py
         └── parse_tophit.py
@@ -57,15 +57,15 @@ To set up the project and run the dashboard, follow these steps:
 Use a Python virtual environment to isolate project dependencies.
 
 ```bash
-# 1. Clone the repository
+# 1. clone the repository
 git clone https://github.com/noe-xception/lyrics-brand-mentions-ru
 cd lyrics-brand-mentions-ru
 
-# 2. Activate the virtual environment (macOS/Linux)
+# 2. activate the virtual environment (macos/linux)
 source .venv/bin/activate
-# To create a new environment: python -m venv .venv && source .venv/bin/activate
+# to create a new environment: python -m venv .venv && source .venv/bin/activate
 
-# 3. Install dependencies
+# 3. install dependencies
 # pip install -r requirements.txt
 ```
 
