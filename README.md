@@ -5,77 +5,77 @@
 ---
 
 ## 1. Abstract
-This research systematically identifies, catalogs, and analyzes brand name mentions within Russian popular music lyrics spanning from 1991 to 2025. The objective is to document cultural and economic shifts in post-Soviet consumer culture through the lens of popular music. By constructing a comprehensive lyrical corpus and deploying advanced Natural Language Processing (NLP) techniques, this project maps the evolution of brand integration, revealing critical insights into consumer behavior, linguistic assimilation, and the resilience of status-driven cultural signifiers amid macroeconomic turbulence.
+This research identifies, catalogs, and analyzes brand name mentions in Russian popular music lyrics from 1991 to 2025. The goal is to observe changes in post-Soviet consumer culture through popular music. By building a lyrics corpus and using Natural Language Processing (NLP) methods, this project tracks how brand mentions change over time, showing trends in consumer behavior and the use of status symbols during economic shifts.
 
 ## 2. Project Architecture
-The repository is modularly structured to ensure clear separation of concerns, reproducibility, and scalability of the computational pipeline.
+The repository is organized to separate data, analysis, and application code.
 
 ```text
 lyrics-brand-mentions-ru/
-├── data/                  # Raw and processed datasets, including aggregated charts and enriched text data
-├── notebooks/             # Exploratory Data Analysis (EDA), data cleaning prototypes, and parser logic
+├── data/                  # Raw and processed datasets, aggregated charts, and text data
+├── notebooks/             # Exploratory data analysis and data cleaning prototypes
 │   ├── data_clean.ipynb
 │   └── parse_*.ipynb
-└── src/                   # Core reproducible pipeline and application logic
-    ├── app/               # Interactive Flask-based web dashboard for longitudinal trend mapping
+└── src/                   # Main pipeline and application code
+    ├── app/               # Flask web dashboard for viewing data trends
     │   ├── app.py
     │   ├── charts_logic.py
     │   └── static/ & templates/
-    ├── data_pipeline/     # Scripts for rigorous data cleaning and metadata enrichment
+    ├── data_pipeline/     # Scripts for data cleaning and adding metadata
     │   └── data_clean.py
-    └── scrapers/          # Automated extraction tools for historical and digital streaming charts
+    └── scrapers/          # Scripts to collect chart data
         ├── parse_master.py
         ├── parse_song_of_the_year.py
         └── parse_tophit.py
 ```
 
 ## 3. Methodology & Computational Pipeline
-The research employs a highly structured computational pipeline divided into five distinct phases, emphasizing methodological rigor and data integrity:
+The research uses a data pipeline divided into five steps:
 
-1. **Chart Aggregation**: Aggregated chart-topping tracks by systematically combining historical television broadcast records (1991-2012) with modern digital streaming metrics (2003-2025) to ensure a holistic longitudinal representation of popularity.
-2. **Automated Lyrics Retrieval**: Implemented an automated, multi-tiered data retrieval system that utilized AI-assisted alias generation. This successfully resolved persistent transliteration and metadata inconsistencies across varying source datasets.
-3. **Context-Aware Named Entity Recognition (NER)**: Deployed Large Language Models (LLMs) to perform complex entity extraction. This enabled the accurate identification of informal slang and creative morphology, effectively normalizing highly variable commercial mentions into their primary corporate parents.
-4. **Metadata Enrichment**: Cross-referenced overarching genre classifications across multiple external databases. Furthermore, the Measure of Textual Lexical Diversity (MTLD) was computed on lemmatized lyrics to establish a standardized baseline for vocabulary richness across different musical epochs and genres.
-5. **Data Structuring and Visualization**: Developed a structured computational pipeline and an interactive web dashboard (via Flask) to map longitudinal trends. This interface includes dynamic capabilities to highlight extracted brand entities directly within the lyrical texts, facilitating exploratory qualitative analysis.
+1. **Chart Aggregation**: Combined historical television records (1991-2012) and digital streaming data (2003-2025) to identify popular tracks.
+2. **Data Retrieval**: Used an automated system with alias generation to fix transliteration and metadata issues across different data sources.
+3. **Named Entity Recognition (NER)**: Used Large Language Models (LLMs) to extract brand entities. This helped group informal slang and different spellings under their main brand names.
+4. **Metadata Processing**: Added genre classifications from external databases. Calculated the Measure of Textual Lexical Diversity (MTLD) on lemmatized lyrics to measure vocabulary richness.
+5. **Data Structuring and Visualization**: Built a data pipeline and a Flask web dashboard to display trends over time. The dashboard highlights brand mentions directly in the lyrics.
 
-## 4. Key Empirical Findings
-Quantitative and qualitative analysis of the assembled corpus yielded several significant sociological and linguistic insights:
+## 4. Key Findings
+Analysis of the corpus shows the following patterns:
 
-*   **Genre Stratification**: The Rap genre demonstrates the highest rate of brand inclusion (37.7%) alongside the highest average lexical diversity. In stark contrast, the Pop genre, while constituting the bulk of the overall corpus, contains a negligible brand inclusion rate (4.2%) and the lowest lexical diversity metric.
-*   **Dominant Entities**: Western commercial entities completely dominate the lyrical landscape. The four most frequently mentioned brands across the entire timeline are **Mercedes-Benz**, **BMW**, **Apple**, and **Gucci**.
-*   **Sanctions Resilience**: Despite severe economic isolation and the formal withdrawal of Western businesses from the Russian Federation post-2022, lyrical mentions of Western luxury brands stabilized at their highest recorded levels. This phenomenon indicates that status culture and the symbolic use of these commercial entities remain deeply ingrained, decoupled from immediate economic availability.
+* **Genre Differences**: The Rap genre has the highest rate of brand mentions (37.7%) and the highest average lexical diversity. The Pop genre makes up most of the dataset but has a low brand mention rate (4.2%) and the lowest lexical diversity.
+* **Frequent Brands**: Western brands are the most common in the lyrics. The four most mentioned brands across the studied period are Mercedes-Benz, BMW, Apple, and Gucci.
+* **Post-2022 Trends**: Despite economic changes and the withdrawal of Western businesses after 2022, mentions of Western luxury brands remained at high levels.
 
-## 5. Reproducibility & Setup
+## 5. Setup and Execution
 
-To reproduce the environment and interact with the data pipeline and visualization dashboard, follow these steps:
+To set up the project and run the dashboard, follow these steps:
 
 ### Prerequisites
-*   Python 3.9+ (or highly recommended version based on dependencies)
-*   Standard scientific computing stack (Pandas, Flask, etc.)
+* Python 3.9+
+* Required packages (Pandas, Flask, etc.)
 
 ### Environment Setup
-It is highly recommended to isolate the project dependencies using a Python virtual environment.
+Use a Python virtual environment to isolate project dependencies.
 
 ```bash
 # 1. Clone the repository
 git clone https://github.com/noe-xception/lyrics-brand-mentions-ru
 cd lyrics-brand-mentions-ru
 
-# 2. Activate the existing virtual environment (macOS/Linux)
+# 2. Activate the virtual environment (macOS/Linux)
 source .venv/bin/activate
-# Note: If creating a new environment: python -m venv .venv && source .venv/bin/activate
+# To create a new environment: python -m venv .venv && source .venv/bin/activate
 
-# 3. Install required dependencies
+# 3. Install dependencies
 # pip install -r requirements.txt
 ```
 
 ### Execution Steps
-1. **Data Scraping & Cleaning Pipeline**: 
-   Navigate to the `src/scrapers/` directory to execute data extraction modules (e.g., `parse_master.py`), or use the Jupyter notebooks inside `notebooks/` to review the interactive parsing and cleaning processes.
+1. **Data Collection and Cleaning**: 
+   Go to the `src/scrapers/` folder to run data extraction scripts (e.g., `parse_master.py`), or use the Jupyter notebooks in `notebooks/` to review the data cleaning steps.
 2. **Launch the Dashboard**:
-   The interactive visualizations and lyrical analysis tools can be explored via the included web application.
+   You can view the data analysis through the web application.
    ```bash
    cd src/app
    python app.py
    ```
-   *The dashboard will be served locally on port 5001 (e.g., `http://localhost:5001` or `http://127.0.0.1:5001`).*
+   *The dashboard will run locally on port 5001 (e.g., `http://localhost:5001` or `http://127.0.0.1:5001`).*
