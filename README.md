@@ -61,21 +61,20 @@ Use a Python virtual environment to isolate project dependencies.
 git clone https://github.com/noe-xception/lyrics-brand-mentions-ru
 cd lyrics-brand-mentions-ru
 
-# 2. activate the virtual environment (macos/linux)
+# 2. create and activate the virtual environment (macos/linux)
+python3 -m venv .venv
 source .venv/bin/activate
-# to create a new environment: python -m venv .venv && source .venv/bin/activate
 
 # 3. install dependencies
-# pip install -r requirements.txt
+pip install -r requirements.txt
 ```
 
 ### Execution Steps
 1. **Data Collection and Cleaning**: 
    Go to the `src/scrapers/` folder to run data extraction scripts (e.g., `parse_master.py`), or use the Jupyter notebooks in `notebooks/` to review the data cleaning steps.
 2. **Launch the Dashboard**:
-   You can view the data analysis through the web application.
+   You can view the data analysis through the web application. Note: ensure you run this from the project root after installing requirements.
    ```bash
-   cd src/app
-   python app.py
+   python3 src/app/app.py
    ```
    *The dashboard will run locally on port 5001 (e.g., `http://localhost:5001` or `http://127.0.0.1:5001`).*

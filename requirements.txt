@@ -1,0 +1,11 @@
+flask
+pandas
+selenium
+beautifulsoup4
+webdriver-manager
+requests
+numpy
+tqdm
+openai
+lyricsgenius
+pymorphy2
