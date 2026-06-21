@@ -69,8 +69,3 @@ if not df_master.empty:
     master_csv_path = os.path.join(output_dir, "tophit_master_all.csv")
     df_master.to_csv(master_csv_path, index=False, encoding='utf-8')
     print(f"\nFinished! Master DataFrame saved to '{master_csv_path}' with {len(df_master)} rows.")
-
-
-df_master.sample(10)
-
-

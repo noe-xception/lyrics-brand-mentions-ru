@@ -1,232 +1,826 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mentions beta</title>
-    
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
     <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
-    
+
     <!-- DataTables Export Buttons Dependencies -->
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
-    
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <style>
-        * { box-sizing: border-box; }
-        body { margin: 0; font-family: 'Inter', system-ui, sans-serif; display: flex; height: 100vh; background: #f8fafc; color: #0f172a; -webkit-font-smoothing: antialiased; }
-        h3, h4 { margin: 0; font-weight: 600; }
-        
-        .sidebar { width: 280px; background: #fff; padding: 30px 24px; border-right: 1px solid #e2e8f0; flex-shrink: 0; display: flex; flex-direction: column; gap: 24px; overflow-y: auto; z-index: 10; }
-        .brand-header { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; padding-bottom: 20px; border-bottom: 1px solid #f1f5f9; }
-        .brand-header h3 { font-size: 18px; letter-spacing: -0.02em; }
+        * {
+            box-sizing: border-box;
+        }
 
-        .filter-group { display: flex; flex-direction: column; gap: 8px; }
-        .filter-group label { font-size: 13px; font-weight: 600; color: #64748b; }
-        .filter-group select { width: 100%; padding: 10px 12px; font-size: 13px; font-family: inherit; color: #334155; background: #f8fafc url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center; background-size: 16px; border: 1px solid #e2e8f0; border-radius: 8px; appearance: none; cursor: pointer; transition: 0.2s; }
-        .filter-group select:focus { outline: none; border-color: #94a3b8; }
-        
-        .main-content { flex-grow: 1; padding: 32px; overflow-y: auto; display: flex; flex-direction: column; gap: 32px; }
-        .dashboard-grid { display: grid; grid-template-columns: 1fr; gap: 24px; }
-        @media (min-width: 1024px) { .dashboard-grid { grid-template-columns: repeat(2, 1fr); } }
-        
-        .chart-cell, .table-container, .modal-content { background: #fff; padding: 24px; border-radius: 12px; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.05); border: 1px solid #e2e8f0; }
-        .chart-cell { min-height: 480px; display: flex; flex-direction: column; }
-        .chart-cell h4, .table-container h4 { margin-bottom: 24px; font-size: 15px; color: #334155; }
-        .canvas-container { position: relative; flex-grow: 1; min-height: 0; } 
-        
+        body {
+            margin: 0;
+            font-family: 'Inter', system-ui, sans-serif;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: #f8fafc;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h3,
+        h4 {
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .app-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #fff;
+            padding: 16px 32px;
+            border-bottom: 1px solid #e2e8f0;
+            z-index: 20;
+            flex-shrink: 0;
+        }
+
+        .header-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-title-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header-title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+        }
+
+        .header-subtitle {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+            font-weight: 400;
+        }
+
+        .header-links {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .header-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #475569;
+            text-decoration: none;
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+        }
+
+        .header-link:hover {
+            color: #0f172a;
+            border-color: #cbd5e1;
+            background: #f8fafc;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-link svg,
+        .header-link img {
+            display: block;
+            flex-shrink: 0;
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            transition: all 0.2s ease;
+        }
+
+        .header-link img.logo-github {
+            filter: opacity(0.7) grayscale(1);
+        }
+
+        .header-link:hover img.logo-github {
+            filter: opacity(1) grayscale(0);
+        }
+
+        .app-container {
+            display: flex;
+            flex-grow: 1;
+            min-height: 0;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 280px;
+            background: #fff;
+            padding: 30px 24px;
+            border-right: 1px solid #e2e8f0;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            overflow-y: auto;
+            z-index: 10;
+        }
+
+        .sidebar-disclaimer {
+            margin-top: auto;
+            padding-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.4;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .sidebar-disclaimer svg {
+            flex-shrink: 0;
+            width: 15px;
+            height: 15px;
+            margin-top: 2px;
+            color: #94a3b8;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .filter-group label {
+            font-size: 13px;
+            font-weight: 600;
+            color: #64748b;
+        }
+
+        .filter-group select {
+            width: 100%;
+            padding: 10px 12px;
+            font-size: 13px;
+            font-family: inherit;
+            color: #334155;
+            background: #f8fafc url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") no-repeat right 12px center;
+            background-size: 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            appearance: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .filter-group select:focus {
+            outline: none;
+            border-color: #94a3b8;
+        }
+
+        .main-content {
+            flex-grow: 1;
+            padding: 32px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 24px;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .chart-cell,
+        .table-container,
+        .modal-content {
+            background: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        .chart-cell {
+            min-height: 480px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-cell h4,
+        .table-container h4 {
+            margin-bottom: 24px;
+            font-size: 15px;
+            color: #334155;
+        }
+
+        .canvas-container {
+            position: relative;
+            flex-grow: 1;
+            min-height: 0;
+        }
+
         /* DataTables Elegant Overrides */
-        .dataTables_wrapper { font-family: 'Inter', system-ui, sans-serif !important; font-size: 13px; color: #334155; }
-        .dataTables_wrapper .dt-top { display: flex; justify-content: flex-start; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
-        .dataTables_wrapper .dt-bottom { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid #e2e8f0; flex-wrap: wrap; gap: 16px; }
-        
+        .dataTables_wrapper {
+            font-family: 'Inter', system-ui, sans-serif !important;
+            font-size: 13px;
+            color: #334155;
+        }
+
+        .dataTables_wrapper .dt-top {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .dataTables_wrapper .dt-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 24px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
         /* Export Buttons - Icon Only (Centered Square) */
-        .dt-buttons { margin-left: auto; display: flex; gap: 8px; }
-        .dt-button { background: #fff !important; border: 1px solid #e2e8f0 !important; color: #475569 !important; padding: 0 !important; width: 34px !important; height: 34px !important; border-radius: 8px !important; font-size: 0 !important; cursor: pointer; transition: 0.2s !important; display: inline-flex !important; align-items: center !important; justify-content: center !important; box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important; font-family: inherit !important; text-decoration: none !important; }
-        .dt-button:hover { background: #f8fafc !important; color: #0f172a !important; border-color: #cbd5e1 !important; box-shadow: 0 2px 4px rgba(0,0,0,0.05) !important; }
-        .dt-button svg { display: block; width: 16px !important; height: 16px !important; margin: 0 !important; }
+        .dt-buttons {
+            margin-left: auto;
+            display: flex;
+            gap: 8px;
+        }
+
+        .dt-button {
+            background: #fff !important;
+            border: 1px solid #e2e8f0 !important;
+            color: #475569 !important;
+            padding: 0 !important;
+            width: 34px !important;
+            height: 34px !important;
+            border-radius: 8px !important;
+            font-size: 0 !important;
+            cursor: pointer;
+            transition: 0.2s !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02) !important;
+            font-family: inherit !important;
+            text-decoration: none !important;
+        }
+
+        .dt-button:hover {
+            background: #f8fafc !important;
+            color: #0f172a !important;
+            border-color: #cbd5e1 !important;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .dt-button svg {
+            display: block;
+            width: 16px !important;
+            height: 16px !important;
+            margin: 0 !important;
+        }
 
         /* Unified Dropdown length */
-        .dataTables_wrapper .dataTables_length label { color: #64748b; font-weight: 500; display: flex; align-items: center; gap: 8px; margin: 0; font-size: 13px; }
-        .dataTables_wrapper .dataTables_length select { padding: 8px 32px 8px 12px !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; background-color: #f8fafc !important; outline: none !important; font-family: inherit !important; color: #334155 !important; font-size: 13px !important; cursor: pointer; appearance: none !important; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important; background-repeat: no-repeat !important; background-position: right 12px center !important; background-size: 14px !important; margin: 0 !important; transition: all 0.2s !important; }
-        .dataTables_wrapper .dataTables_length select:focus { border-color: #94a3b8 !important; box-shadow: 0 0 0 3px #f1f5f9 !important; background-color: #fff !important; }
-        
+        .dataTables_wrapper .dataTables_length label {
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+            font-size: 13px;
+        }
+
+        .dataTables_wrapper .dataTables_length select {
+            padding: 8px 32px 8px 12px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            background-color: #f8fafc !important;
+            outline: none !important;
+            font-family: inherit !important;
+            color: #334155 !important;
+            font-size: 13px !important;
+            cursor: pointer;
+            appearance: none !important;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e") !important;
+            background-repeat: no-repeat !important;
+            background-position: right 12px center !important;
+            background-size: 14px !important;
+            margin: 0 !important;
+            transition: all 0.2s !important;
+        }
+
+        .dataTables_wrapper .dataTables_length select:focus {
+            border-color: #94a3b8 !important;
+            box-shadow: 0 0 0 3px #f1f5f9 !important;
+            background-color: #fff !important;
+        }
+
         /* Unified Search Input */
-        .dataTables_wrapper .dataTables_filter label { color: #64748b; font-weight: 500; display: flex; align-items: center; margin: 0; font-size: 13px; }
-        .dataTables_wrapper .dataTables_filter input { padding: 8px 16px !important; border: 1px solid #e2e8f0 !important; border-radius: 8px !important; outline: none !important; transition: all 0.2s !important; margin-left: 12px !important; width: 240px !important; font-family: inherit !important; font-size: 13px !important; background-color: #f8fafc !important; color: #334155 !important; }
-        .dataTables_wrapper .dataTables_filter input:focus { border-color: #94a3b8 !important; box-shadow: 0 0 0 3px #f1f5f9 !important; background-color: #fff !important; }
-        .dataTables_wrapper .dataTables_filter input::placeholder { color: #94a3b8 !important; font-weight: 400 !important; }
+        .dataTables_wrapper .dataTables_filter label {
+            color: #64748b;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            margin: 0;
+            font-size: 13px;
+        }
 
-        .dataTables_info { color: #64748b !important; padding: 0 !important; font-size: 13px; clear: none !important; }
-        .dataTables_paginate { display: flex; gap: 4px; align-items: center; margin-top: 0 !important; }
-        .dataTables_paginate .paginate_button { padding: 6px 12px !important; border-radius: 6px !important; border: 1px solid transparent !important; background: transparent !important; color: #475569 !important; cursor: pointer; font-weight: 500; transition: all 0.2s; margin: 0 2px !important; }
-        .dataTables_paginate .paginate_button:hover { background: #f1f5f9 !important; color: #0f172a !important; }
-        .dataTables_paginate .paginate_button.current { background: #fff !important; border-color: #e2e8f0 !important; color: #0f172a !important; box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important; }
-        .dataTables_paginate .paginate_button.disabled { opacity: 0.5; cursor: not-allowed; background: transparent !important; color: #94a3b8 !important; }
+        .dataTables_wrapper .dataTables_filter input {
+            padding: 8px 16px !important;
+            border: 1px solid #e2e8f0 !important;
+            border-radius: 8px !important;
+            outline: none !important;
+            transition: all 0.2s !important;
+            margin-left: 12px !important;
+            width: 240px !important;
+            font-family: inherit !important;
+            font-size: 13px !important;
+            background-color: #f8fafc !important;
+            color: #334155 !important;
+        }
 
-        table.dataTable { border-collapse: collapse !important; width: 100% !important; margin: 0 !important; border-bottom: none !important; }
-        table.dataTable thead th { border-bottom: 1px solid #e2e8f0 !important; color: #64748b !important; font-weight: 600; font-size: 11px !important; text-transform: uppercase; letter-spacing: 0.05em; padding: 12px 16px !important; text-align: left; }
-        table.dataTable tbody td { border-bottom: 1px solid #f1f5f9 !important; padding: 16px !important; vertical-align: middle; font-size: 13px; color: #334155; text-align: left; }
-        table.dataTable tbody tr { transition: background-color 0.2s; }
-        table.dataTable tbody tr:hover { background-color: #f8fafc !important; }
-        table.dataTable.no-footer { border-bottom: none !important; }
+        .dataTables_wrapper .dataTables_filter input:focus {
+            border-color: #94a3b8 !important;
+            box-shadow: 0 0 0 3px #f1f5f9 !important;
+            background-color: #fff !important;
+        }
 
-        .highlighted-mention { background: #fef08a; color: #854d0e; padding: 2px 4px; border-radius: 4px; font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
+        .dataTables_wrapper .dataTables_filter input::placeholder {
+            color: #94a3b8 !important;
+            font-weight: 400 !important;
+        }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15,23,42,0.4); backdrop-filter: blur(4px); align-items: center; justify-content: center; }
-        .modal.show { display: flex; }
-        .modal-content { padding: 32px; width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #e2e8f0; }
-        .close-btn { background: none; border: none; font-size: 24px; color: #64748b; cursor: pointer; padding: 0; line-height: 1; transition: 0.2s; }
-        .close-btn:hover { color: #0f172a; }
-        .modal-body { overflow-y: auto; color: #334155; font-size: 14px; line-height: 1.6; white-space: pre-wrap; padding-right: 8px; }
+        .dataTables_info {
+            color: #64748b !important;
+            padding: 0 !important;
+            font-size: 13px;
+            clear: none !important;
+        }
 
-        .view-btn { background: #f8fafc; border: 1px solid #e2e8f0; color: #475569; padding: 6px 14px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.2s; font-family: inherit; }
-        .view-btn:hover { background: #f1f5f9; color: #0f172a; border-color: #cbd5e1; }
+        .dataTables_paginate {
+            display: flex;
+            gap: 4px;
+            align-items: center;
+            margin-top: 0 !important;
+        }
+
+        .dataTables_paginate .paginate_button {
+            padding: 6px 12px !important;
+            border-radius: 6px !important;
+            border: 1px solid transparent !important;
+            background: transparent !important;
+            color: #475569 !important;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+            margin: 0 2px !important;
+        }
+
+        .dataTables_paginate .paginate_button:hover {
+            background: #f1f5f9 !important;
+            color: #0f172a !important;
+        }
+
+        .dataTables_paginate .paginate_button.current {
+            background: #fff !important;
+            border-color: #e2e8f0 !important;
+            color: #0f172a !important;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+        }
+
+        .dataTables_paginate .paginate_button.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: transparent !important;
+            color: #94a3b8 !important;
+        }
+
+        table.dataTable {
+            border-collapse: collapse !important;
+            width: 100% !important;
+            margin: 0 !important;
+            border-bottom: none !important;
+        }
+
+        table.dataTable thead th {
+            border-bottom: 1px solid #e2e8f0 !important;
+            color: #64748b !important;
+            font-weight: 600;
+            font-size: 11px !important;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 12px 16px !important;
+            text-align: left;
+        }
+
+        table.dataTable tbody td {
+            border-bottom: 1px solid #f1f5f9 !important;
+            padding: 16px !important;
+            vertical-align: middle;
+            font-size: 13px;
+            color: #334155;
+            text-align: left;
+        }
+
+        table.dataTable tbody tr {
+            transition: background-color 0.2s;
+        }
+
+        table.dataTable tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
+
+        table.dataTable.no-footer {
+            border-bottom: none !important;
+        }
+
+        .highlighted-mention {
+            background: #fef08a;
+            color: #854d0e;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: 600;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.4);
+            backdrop-filter: blur(4px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            padding: 32px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: #64748b;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            transition: 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #0f172a;
+        }
+
+        .modal-body {
+            overflow-y: auto;
+            color: #334155;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            padding-right: 8px;
+        }
+
+        .view-btn {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #475569;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            font-family: inherit;
+        }
+
+        .view-btn:hover {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        /* General Info Card Styles */
+        .info-card {
+            grid-column: 1 / -1;
+            min-height: auto !important;
+            background: #fff;
+            padding: 28px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .info-card-title-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 14px;
+        }
+
+        .info-card-title-row svg {
+            color: #0054A6;
+            flex-shrink: 0;
+        }
+
+        .info-card-title-row h3 {
+            font-size: 16px;
+            color: #0f172a;
+            font-weight: 600;
+        }
+
+        .info-card-body {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #475569;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .info-card-body p {
+            margin: 0;
+        }
+
+        .info-card-body ul {
+            margin: 0;
+            padding-left: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
     </style>
 </head>
+
 <body>
 
-    <aside class="sidebar">
-        <div class="brand-header"><h3>Brand Mentions</h3></div>
-        
-        <div class="filter-group">
-            <label>Brand</label>
-            <select id="brandFilter">
-                <option value="all">All Brands</option>
-                {% for brand in brands %}<option value="{{ brand }}">{{ brand }}</option>{% endfor %}
-            </select>
+    <header class="app-header">
+        <div class="header-brand">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#0054A6" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 18V5l12-2v13"></path>
+                <circle cx="6" cy="18" r="3"></circle>
+                <circle cx="18" cy="16" r="3"></circle>
+            </svg>
+            <div class="header-title-container">
+                <h1 class="header-title">Brand Vocabulary in Russian Popular Music</h1>
+            </div>
         </div>
-        <div class="filter-group">
-            <label>Category</label>
-            <select id="categoryFilter">
-                <option value="all">All Categories</option>
-                {% for category in categories %}<option value="{{ category }}">{{ category | title }}</option>{% endfor %}
-            </select>
+        <div class="header-links">
+            <a href="https://github.com/noe-xception/lyrics-brand-mentions-ru" target="_blank" rel="noopener noreferrer"
+                class="header-link">
+                <img src="{{ url_for('static', filename='images/github.svg') }}" alt="GitHub" class="logo-github">
+                <span>GitHub</span>
+            </a>
+            <a href="https://www.hse.ru/en/ma/dh/" target="_blank" rel="noopener noreferrer" class="header-link">
+                <img src="{{ url_for('static', filename='images/hse.svg') }}" alt="HSE DH" class="logo-hse">
+                <span>HSE DH</span>
+            </a>
         </div>
-        <div class="filter-group">
-            <label>Origin</label>
-            <select id="originFilter">
-                <option value="all">All Origins</option>
-                {% for origin in origins %}<option value="{{ origin }}">{{ origin | title }}</option>{% endfor %}
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Genre</label>
-            <select id="genreFilter">
-                <option value="all">All Genres</option>
-                {% for genre in genres %}<option value="{{ genre }}">{{ genre | title }}</option>{% endfor %}
-            </select>
-        </div>
-        <div class="filter-group">
-            <label>Platform</label>
-            <select id="platformFilter">
-                <option value="all">All Platforms</option>
-                {% for platform in platforms %}<option value="{{ platform }}">{{ platform | title }}</option>{% endfor %}
-            </select>
-        </div>
-    </aside>
+    </header>
 
-    <main class="main-content">
-        <div class="dashboard-grid">
-            <div class="chart-cell">
-                <h4>Top Categories of Mentioned Brands</h4>
-                <div class="canvas-container"><canvas id="categoryChart"></canvas></div>
+    <div class="app-container">
+        <aside class="sidebar">
+            <div class="filter-group">
+                <label>Brand</label>
+                <select id="brandFilter">
+                    <option value="all">All Brands</option>
+                    {% for brand in brands %}<option value="{{ brand }}">{{ brand }}</option>{% endfor %}
+                </select>
             </div>
-            <div class="chart-cell">
-                <h4>Top Genres Featuring Brands</h4>
-                <div class="canvas-container"><canvas id="genreChart"></canvas></div>
+            <div class="filter-group">
+                <label>Category</label>
+                <select id="categoryFilter">
+                    <option value="all">All Categories</option>
+                    {% for category in categories %}<option value="{{ category }}">{{ category | title }}</option>{%
+                    endfor %}
+                </select>
             </div>
-            <div class="chart-cell">
-                <h4>All-Time Top 10 Mentioned Brands</h4>
-                <div class="canvas-container"><canvas id="brandsChart"></canvas></div>
+            <div class="filter-group">
+                <label>Origin</label>
+                <select id="originFilter">
+                    <option value="all">All Origins</option>
+                    {% for origin in origins %}<option value="{{ origin }}">{{ origin | title }}</option>{% endfor %}
+                </select>
             </div>
-            <div class="chart-cell">
-                <h4>% of Songs with Any Brand Mention</h4>
-                <div class="canvas-container"><canvas id="ratioChart"></canvas></div>
+            <div class="filter-group">
+                <label>Genre</label>
+                <select id="genreFilter">
+                    <option value="all">All Genres</option>
+                    {% for genre in genres %}<option value="{{ genre }}">{{ genre | title }}</option>{% endfor %}
+                </select>
             </div>
-            <div class="chart-cell">
-                <h4>% of Songs with Western/Abroad Brands</h4>
-                <div class="canvas-container"><canvas id="westernRatioChart"></canvas></div>
+            <div class="filter-group">
+                <label>Platform</label>
+                <select id="platformFilter">
+                    <option value="all">All Platforms</option>
+                    {% for platform in platforms %}<option value="{{ platform }}">{{ platform | title }}</option>{%
+                    endfor %}
+                </select>
             </div>
-            <div class="chart-cell">
-                <h4>% of Songs with Domestic/CIS Brands</h4>
-                <div class="canvas-container"><canvas id="domesticRatioChart"></canvas></div>
+
+            <div class="sidebar-disclaimer">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="16" x2="12" y2="12"></line>
+                    <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                </svg>
+                <span>Disclaimer: AI-generated data may contain mistakes</span>
             </div>
-            <div class="chart-cell">
-                <h4>Average MTLD by Genre</h4>
-                <div class="canvas-container"><canvas id="mtldChart"></canvas></div>
-            </div>
-            
-            <div class="chart-cell" style="grid-column: 1 / -1; min-height: auto;">
-                <h4>Genre Summary Statistics</h4>
-                <div class="canvas-container" style="overflow-x: auto;">
-                    <table id="summaryTable" class="display" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Genre</th>
-                                <th>Songs</th>
-                                <th>Brand Mentions</th>
-                                <th>% Songs w/ Mentions</th>
-                                <th>Min / Med / Max Chars</th>
-                                <th>Min / Med / Max Words</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+        </aside>
+
+        <main class="main-content">
+            <div class="dashboard-grid">
+                <div class="info-card">
+                    <div class="info-card-title-row">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        <h3>About the Project</h3>
+                    </div>
+                    <div class="info-card-body">
+                        <p>
+                            This dashboard presents data from a corpus study tracking <strong>brand name
+                                mentions</strong> in Russian chart music. The project analyzes brand representation and
+                            frequency over time.
+                        </p>
+                        <ul>
+                            <li><strong>Corpus Collection:</strong> The database was compiled from chart archives,
+                                including TopHit, and music websites.
+                            </li>
+                            <li><strong>AI Processing:</strong> Large Language Models (LLMs) matched free-text artist
+                                and song names with lyrics from APIs, identified brand mentions, resolved slang, and
+                                mapped aliases.</li>
+                            <li><strong>Data Enrichment:</strong> Extracted entities were enriched with metadata, such
+                                as brand categories and corporate affiliations.</li>
+                            <li><strong>Open Data Licensing:</strong> The annotated corpus and aggregated dataset are
+                                made available for academic research under a Creative Commons (CC BY-NC 4.0) license.
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="chart-cell">
+                    <h4>Top Categories of Mentioned Brands</h4>
+                    <div class="canvas-container"><canvas id="categoryChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>Top Genres Featuring Brands</h4>
+                    <div class="canvas-container"><canvas id="genreChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>All-Time Top 10 Mentioned Brands</h4>
+                    <div class="canvas-container"><canvas id="brandsChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>% of Songs with Any Brand Mention</h4>
+                    <div class="canvas-container"><canvas id="ratioChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>% of Songs with Western/Abroad Brands</h4>
+                    <div class="canvas-container"><canvas id="westernRatioChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>% of Songs with Domestic/CIS Brands</h4>
+                    <div class="canvas-container"><canvas id="domesticRatioChart"></canvas></div>
+                </div>
+                <div class="chart-cell">
+                    <h4>Average MTLD by Genre</h4>
+                    <div class="canvas-container"><canvas id="mtldChart"></canvas></div>
+                </div>
+
+                <div class="chart-cell" style="grid-column: 1 / -1; min-height: auto;">
+                    <h4>Genre Summary Statistics</h4>
+                    <div class="canvas-container" style="overflow-x: auto;">
+                        <table id="summaryTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Genre</th>
+                                    <th>Songs</th>
+                                    <th>Brand Mentions</th>
+                                    <th>% Songs w/ Mentions</th>
+                                    <th>Min / Med / Max Chars</th>
+                                    <th>Min / Med / Max Words</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="chart-cell" style="grid-column: 1 / -1; min-height: auto;">
+                    <h4>Top Brands & Popular Forms</h4>
+                    <div class="canvas-container" style="overflow-x: auto;">
+                        <table id="brandFormsTable" class="display" style="width:100%">
+                            <thead>
+                                <tr>
+                                    <th>Brand</th>
+                                    <th>Total Songs</th>
+                                    <th>Top 5 Mention Forms</th>
+                                </tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="chart-cell" style="grid-column: 1 / -1; min-height: auto;">
-                <h4>Top Brands & Popular Forms</h4>
-                <div class="canvas-container" style="overflow-x: auto;">
-                    <table id="brandFormsTable" class="display" style="width:100%">
-                        <thead>
-                            <tr>
-                                <th>Brand</th>
-                                <th>Total Songs</th>
-                                <th>Top 5 Mention Forms</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
+            <div class="table-container">
+                <h4>Lyrics Database</h4>
+                <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+                    <strong style="font-size: 12px; color: #64748b;">Origins:</strong>
+                    <span
+                        style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WST</span>
+                    <span style="color:#94a3b8;font-size:11px;margin-right:8px;">= Western/Abroad</span>
+                    <span
+                        style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">DOM</span>
+                    <span style="color:#94a3b8;font-size:11px;margin-right:8px;">= Domestic</span>
+                    <span
+                        style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">CIS</span>
+                    <span style="color:#94a3b8;font-size:11px;">= CIS</span>
                 </div>
+                <table id="songTable" class="display" style="width:100%">
+                    <thead>
+                        <tr>
+                            <th>Year</th>
+                            <th>Platform</th>
+                            <th>Artist</th>
+                            <th>Song</th>
+                            <th>Genre</th>
+                            <th>Mentions Mapping</th>
+                            <th>Lyrics</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
             </div>
-        </div>
-
-        <div class="table-container">
-            <h4>Lyrics Database</h4>
-            <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-                <strong style="font-size: 12px; color: #64748b;">Origins:</strong> 
-                <span style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">WST</span> 
-                <span style="color:#94a3b8;font-size:11px;margin-right:8px;">= Western/Abroad</span>
-                <span style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">DOM</span> 
-                <span style="color:#94a3b8;font-size:11px;margin-right:8px;">= Domestic</span>
-                <span style="background:#e2e8f0;color:rgba(30,41,59,0.65);padding:2px 8px;border-radius:6px;font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;">CIS</span> 
-                <span style="color:#94a3b8;font-size:11px;">= CIS</span>
-            </div>
-            <table id="songTable" class="display" style="width:100%">
-                <thead>
-                    <tr>
-                        <th>Year</th>
-                        <th>Platform</th>
-                        <th>Artist</th>
-                        <th>Song</th>
-                        <th>Genre</th>
-                        <th>Mentions Mapping</th>
-                        <th>Lyrics</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <div id="lyricsModal" class="modal">
         <div class="modal-content">
@@ -240,4 +834,5 @@
 
     <script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
 </body>
+
 </html>

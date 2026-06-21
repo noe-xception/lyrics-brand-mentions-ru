@@ -139,8 +139,3 @@ df['artist_name'] = df['artist_name'].apply(clean_artist)
 df['song_name'] = df['song_name'].apply(clean_song)
 
 df.to_csv('song_of_the_year_charts/song_of_the_year_master_not_cleared.csv', index=False)
-
-
-df.sample(15)
-
-

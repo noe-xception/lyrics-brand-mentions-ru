@@ -17,14 +17,14 @@ if not hasattr(inspect, 'getargspec'):
     inspect.getargspec = lambda f: inspect.getfullargspec(f)[:4]
 import pymorphy2
 
-# set up display and
+# setup display config
 pd.set_option('display.max_columns', None)
 tqdm.pandas(desc="processing data")
 
 morph = pymorphy2.MorphAnalyzer()
 
 
-# init api clients. fallback
+# init api clients
 ai_client = OpenAI(
     api_key=os.getenv("DEEPSEEK_API_KEY", "sk-4c355f2d8d8c4885a616da01b419ad53"),
     base_url="https://api.deepseek.com"
@@ -37,7 +37,7 @@ genius.remove_section_headers = True
 lastfm_key = os.getenv("LASTFM_API_KEY", "e230cd7998903ddb5876beb486e82ee2")
 
 
-# genre maps and priority
+# genre maps
 genre_map = {
     'folk': 'folk', 'electronics': 'electronics', 'caucasian': 'caucasian',
     'rusrock': 'rock', 'rock': 'rock', 'dance': 'dance', 'rusrap': 'rap',
@@ -48,7 +48,7 @@ genre_priority = ['folk', 'electronics', 'caucasian', 'rock', 'dance', 'rap', 'e
 
 
 def get_lyrics(artist: str, song: str) -> Tuple[Optional[str], Optional[str], Optional[int]]:
-    # try finding on yandex
+    # search via yandex
     try:
         headers = {"X-Yandex-Music-Client": "YandexMusicAndroid/24023231"}
         search_res = requests.get(
@@ -73,7 +73,7 @@ def get_lyrics(artist: str, song: str) -> Tuple[Optional[str], Optional[str], Op
     except Exception:
         pass
 
-    # try finding on genius
+    # search via genius
     try:
         if song_data := genius.search_song(title=song, artist=artist):
             if song_data.lyrics:
@@ -81,7 +81,7 @@ def get_lyrics(artist: str, song: str) -> Tuple[Optional[str], Optional[str], Op
     except Exception:
         pass
     
-    # if genius fails, try
+    # fallback to lrclib
     try:
         res = requests.get("https://lrclib.net/api/get", params={"artist_name": artist, "track_name": song}, timeout=5)
         if res.status_code == 200:
@@ -94,7 +94,7 @@ def get_lyrics(artist: str, song: str) -> Tuple[Optional[str], Optional[str], Op
 
 
 def get_ai_aliases(artist: str, song: str) -> list[Tuple[str, str]]:
-    # ask llm to clean
+    # llm data cleaning
     prompt = (
         f"Raw Artist: '{artist}', Raw Song: '{song}'.\n"
         "The input data is often messy. Fix it to determine the true core artist and song name compatible with lyrics aggregators (Genius, Musixmatch).\n"
@@ -141,7 +141,7 @@ def process_track(row: pd.Series) -> pd.Series:
 import json
 
 def extract_brands(lyrics: str, release_date: str) -> str:
-    # scan lyrics for brand
+    # extract brands
     if not isinstance(lyrics, str) or not lyrics.strip():
         return "[]"
 
@@ -178,7 +178,7 @@ def extract_brands(lyrics: str, release_date: str) -> str:
 
 
 def fetch_artist_genres(artist: str, lastfm_api_key: str) -> dict:
-    # grab genres across multiple
+    # fetch genres
     genres = {'itunes': [], 'yandex': [], 'lastfm': [], 'musicbrainz': []}
     
     try:
@@ -219,7 +219,7 @@ def pick_best_genre(genres: list) -> str:
 
 
 def calc_mtld_side(tokens: list, ttr_thresh: float) -> float:
-    # helper for one-sided mtld
+    # calc side mtld
     if not tokens:
         return 0.0
     types = set()
@@ -239,14 +239,14 @@ def calc_mtld_side(tokens: list, ttr_thresh: float) -> float:
     return len(tokens) / factors if factors > 0 else 0.0
 
 def get_mtld(lyrics: str, ttr_thresh: float = 0.72) -> float:
-    # compute bidirectional mtld for
+    # calc bidirectional mtld
     if not isinstance(lyrics, str) or not lyrics.strip():
         return 0.0
-    # grab pure words only
+    # extract tokens
     raw_tokens = re.findall(r'(?u)\b\w+\b', lyrics.lower())
     if not raw_tokens:
         return 0.0
-    # lemmatize tokens to avoid
+    # lemmatize tokens
     tokens = [morph.parse(token)[0].normal_form for token in raw_tokens]
     forward = calc_mtld_side(tokens, ttr_thresh)
     backward = calc_mtld_side(tokens[::-1], ttr_thresh)
@@ -255,13 +255,13 @@ def get_mtld(lyrics: str, ttr_thresh: float = 0.72) -> float:
 
 if __name__ == "__main__":
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # load and merge raw
+    # merge raw data
     df_tophit = pd.read_csv(os.path.join(BASE_DIR, "data", "raw", "tophit_charts", "tophit_master_all.csv")) # [:5]
     df_pg = pd.read_csv(os.path.join(BASE_DIR, "data", "raw", "song_of_the_year_charts", "song_of_the_year_master_not_cleared.csv")) # [:5]
     df = pd.concat([df_tophit, df_pg], ignore_index=True)
     df.columns = df.columns.str.lower()
 
-    # clean initial dataset and
+    # clean initial data
     df = df.drop_duplicates(subset=['artist_name', 'song_name'])
     valid_mask = (
         ~df['artist_name'].astype(str).str.contains('unknown', case=False, na=False) &
@@ -270,38 +270,38 @@ if __name__ == "__main__":
     )
     df = df[valid_mask].reset_index(drop=True)
 
-    # grab lyrics via apis
+    # fetch lyrics
     new_cols = ['matched_artist', 'matched_song', 'ai_suggestions', 'lyrics', 'source', 'source_id']
     df[new_cols] = df.progress_apply(process_track, axis=1, result_type='expand')
 
-    # strip junk strings from
+    # clean lyrics text
     df['lyrics'] = df['lyrics'].str.replace(r'^\d+\s*Contributors?.*?Lyrics\s*', '', regex=True, flags=re.IGNORECASE)
     df_valid = df[df['lyrics'] != 'not found'].copy()
 
-    # get brands from lyrics
+    # extract brands
     df_valid['extracted_brands'] = df_valid.progress_apply(
     lambda row: extract_brands(row['lyrics'], row['release_date']), 
     axis=1
     )
 
-    # calc lexical diversity (mtld)
+    # calc mtld
     df_valid['mtld'] = df_valid['lyrics'].apply(get_mtld)
 
-    # map out genres for
+    # fetch artist genres
     unique_artists = df_valid['matched_artist'].dropna().unique()
     genre_data = {}
     for artist in tqdm(unique_artists, desc="fetching genres"):
         genre_data[artist] = fetch_artist_genres(artist, lastfm_key)
         time.sleep(1)
 
-    # attach gathered genres back
+    # map genres
     df_valid['genres_itunes'] = df_valid['matched_artist'].map(lambda a: genre_data.get(a, {}).get('itunes', []))
     df_valid['genres_yandex'] = df_valid['matched_artist'].map(lambda a: genre_data.get(a, {}).get('yandex', []))
     df_valid['genres_lastfm'] = df_valid['matched_artist'].map(lambda a: genre_data.get(a, {}).get('lastfm', []))
     df_valid['genres_musicbrainz'] = df_valid['matched_artist'].map(lambda a: genre_data.get(a, {}).get('musicbrainz', []))
     df_valid['chosen_genre'] = df_valid['genres_yandex'].apply(pick_best_genre)
 
-    # build final columns and
+    # format columns
     df_final = df_valid.assign(
         year=lambda x: x['release_date'].fillna(x['year']) if 'release_date' in x.columns else x['year'],
         genius_id=lambda x: np.where(x['source'] == 'genius', x['source_id'], np.nan),
@@ -318,14 +318,9 @@ if __name__ == "__main__":
         'chosen_genre', 'extracted_brands', 'mtld'
     ]
     
-    # keep only the columns
+    # filter columns
     available_cols = [c for c in final_cols if c in df_final.columns]
     df_final = df_final[available_cols]
 
-    # dump to csv
+    # export to csv
     df_final.to_csv(os.path.join(BASE_DIR, "data", "processed", "final_processed_dataset.csv"), index=False, encoding='utf-8')
-
-
-df_final.shape
-
-

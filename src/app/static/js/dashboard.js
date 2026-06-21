@@ -3,13 +3,13 @@ let summaryTable = null, dataTable = null, brandFormsTable = null;
 // setup chart plugins
 Chart.register(ChartDataLabels);
 
-// base palette from user + expanded complementary pastels
+// configure color palette
 const colors = {
     cats: { 'cars': '#b3cde0', 'luxury clothes': '#fbb4ae', 'other': '#d9d9d9', 'social media': '#ccebc5', 'electronics': '#decbe4', 'alcohol and smoke': '#fed9a6', 'food': '#e5d8bd', 'persons': '#fddaec', 'weapons': '#b3e2cd', 'places': '#fdcdac' },
     pastels: ['#b3cde0','#fbb4ae','#ccebc5','#decbe4','#fed9a6','#e5d8bd','#fddaec','#b3e2cd','#fdcdac','#cbd5e8','#f4cae4','#e6f5c9','#fff2ae','#f1e2cc','#f1b6da','#b8e186']
 };
 
-// standard bar chart config
+// configure standard bar chart
 const baseConfig = {
     responsive: true, maintainAspectRatio: false, interaction: { mode: 'index', intersect: false },
     scales: { 
@@ -23,7 +23,7 @@ const baseConfig = {
     }
 };
 
-// restored standalone config for the mtld chart
+// configure mtld chart
 const simpleBarConfig = {
     responsive: true,
     maintainAspectRatio: false,
@@ -84,12 +84,12 @@ async function updateData() {
     const res = await fetch(`/api/data?${q}`);
     const data = await res.json();
     
-    // Bar Charts
+    // update bar charts
     updateChart('categoryChart', 'bar', { labels: data.graph3.years, datasets: applyColors(data.graph3.datasets, true) }, baseConfig);
     updateChart('genreChart', 'bar', { labels: data.graph2.years, datasets: applyColors(data.graph2.datasets) }, baseConfig);
     updateChart('brandsChart', 'bar', { labels: data.graph1.years, datasets: applyColors(data.graph1.datasets) }, baseConfig);
     
-    // Line Charts
+    // update line charts
     const lineOpts = { 
         ...baseConfig, 
         scales: { 
@@ -114,13 +114,13 @@ async function updateData() {
         updateChart(id, 'line', { labels: chartData.years, datasets: chartData.datasets }, lineOpts);
     });
     
-    // MTLD Chart
+    // update mtld chart
     if (data.graph7?.labels) {
         data.graph7.datasets[0] = { ...data.graph7.datasets[0], backgroundColor: data.graph7.labels.map((_, i) => colors.pastels[i % colors.pastels.length]), borderRadius: 2, barPercentage: 0.7 };
         updateChart('mtldChart', 'bar', data.graph7, simpleBarConfig); 
     }
 
-    // Tables logic parsing
+    // parse table logic
     let maxC = 0, maxW = 0, maxSongs = 0;
     (data.summary_data || []).forEach(r => {
         const c = r.chars_stats.split(' / ').map(Number), w = r.words_stats.split(' / ').map(Number);
@@ -140,7 +140,7 @@ async function updateData() {
             buttons: [
                 {
                     extend: 'csvHtml5',
-                    // Button configuration updated to just display the SVG icon, with a tooltip for functionality indication
+                    // update button config with svg icon
                     text: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>',
                     titleAttr: 'Download CSV',
                     className: 'dt-button'

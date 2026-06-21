@@ -30,10 +30,6 @@ df_genres['extracted_brands'] = df_genres['extracted_brands'].apply(lambda x: as
 exploded_brands = df_genres['extracted_brands'].explode().dropna()
 
 distinct_brands = exploded_brands.str.get('normalized').dropna().unique().tolist()
-
-print(distinct_brands)
-
-
 categories = {
     'cars': [
         'BMW', 'Porsche', 'Cadillac', 'Mercedes-Benz', 'LADA', 'Honda', 
@@ -182,10 +178,6 @@ df_genres['extracted_brands'] = df_genres['extracted_brands'].apply(
         for item in lst
     ] if isinstance(lst, list) else []
 )
-
-
-df_genres[df_genres.extracted_brands.astype(str) != '[]'].sort_values(by='year', ascending=False).sample(1)
-
 
 import ast
 
