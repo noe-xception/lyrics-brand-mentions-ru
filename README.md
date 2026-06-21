@@ -1,4 +1,4 @@
-# Brand Vocabulary in Russian Popular Music Lyrics (1991-2025): A Corpus Study
+# Brand Vocabulary in Russian Popular Music Lyrics (1991-2024): A Corpus Study
 
 **Degree**: Master's Project
 
